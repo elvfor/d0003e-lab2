@@ -93,8 +93,18 @@ void spawn(void (* function)(int), int arg) {
 }
 
 void yield(void) {
-
+	enqueue(current, &readyQ);
+	dispatch(dequeue(&readyQ));
 }
+
+ISR(PCINT1_vect)
+{
+	if (PINB >> 7 == 0)
+	{
+		yield();
+	}
+}
+
 
 void lock(mutex *m) {
 

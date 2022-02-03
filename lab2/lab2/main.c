@@ -8,11 +8,14 @@
 #include <avr/io.h>
 
 
-int main(void)
+/*int main(void)
 {
-    /* Replace with your application code */
+    // Replace with your application code 
     while (1) 
     {
+	LCD_Init();
+	main();
+	
     }
-}
+}*/
 
