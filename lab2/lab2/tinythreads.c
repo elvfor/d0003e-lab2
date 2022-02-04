@@ -35,8 +35,22 @@ static void initialize(void) {
         threads[i].next = &threads[i+1];
     threads[NTHREADS-1].next = NULL;
 
+ 
+		//Joystick init									
+		PORTB = PORTB | (1 << 7);		//pull up resistor
+		EIMSK =	128;					//enable Interrupt
+		PCMSK1 = 128;		
 
-    initialized = 1;
+		//Clock init
+		/*TCCR1A = (1 << COM1A0) | (1 << COM1A1);						//CTC mode & OC1A is set high on compare match.
+		TCCR1B =  (1 << WGM12) |(1 << CS10) |(1 << CS12);								// prescale Factor on 1024.
+		OCR1A = 391;													// Set Value to around 50ms. 8000000/20480 = 390.625
+	
+		TCNT1 = 0x0;				//clearing the TCNT1
+		TIMSK1 = (1 << OCIE1A);		//match interrupt Enable  comparission
+*/
+	
+		  initialized = 1;
 }
 
 static void enqueue(thread p, thread *queue) {
@@ -93,23 +107,42 @@ void spawn(void (* function)(int), int arg) {
 }
 
 void yield(void) {
+	ENABLE();
 	enqueue(current, &readyQ);
 	dispatch(dequeue(&readyQ));
+	DISABLE();
 }
 
-ISR(PCINT1_vect)
-{
-	if (PINB >> 7 == 0)
-	{
+ISR(PCINT1_vect){
+	if (PINB >> 7 == 0){
 		yield();
 	}
 }
 
+/*ISR(TIMER1_COMPA_vect) {
+	yield();
+}*/
+
 
 void lock(mutex *m) {
+	DISABLE();
+	if (m ->locked == 0) {
 
+		m->locked = 1;
+	} else {
+		enqueue(current, &(m->waitQ));
+		dispatch(dequeue(&readyQ));
+	}
+	ENABLE();
 }
 
 void unlock(mutex *m) {
-
+	DISABLE();
+	if (m->waitQ == NULL) {
+		m->locked = 0;
+	} else {
+		enqueue(current, (&readyQ));
+		dispatch(dequeue(&(m->waitQ)));
 }
+	ENABLE();
+	}

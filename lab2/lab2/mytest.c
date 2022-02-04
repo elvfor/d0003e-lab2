@@ -5,7 +5,9 @@
 #include <avr/portpins.h>
 #include <stdlib.h>
 
-//For display output
+int pp;
+mutex m = MUTEX_INIT;
+
 int numbers [10] = {
 	0x1551,					// 0
 	0x0110,					// 1
@@ -18,12 +20,6 @@ int numbers [10] = {
 	0x1f51,					// 8
 	0x1b51,					// 9
 };
-
-struct thread_struct {
-	thread next;
-	
-	};
-
 
 void LCD_Init(void){
 	/* Use 32 kHz crystal oscillator */
@@ -40,7 +36,6 @@ void LCD_Init(void){
 	/* Enable LCD, low power waveform and no frame interrupt enabled */
 	LCDCRA = (1<<LCDEN) | (1<<LCDAB);
 }
-
 void writeChar(char ch, int pos){ // from lab 1
 	
 	int i = (ch - '0');
@@ -92,10 +87,12 @@ int is_prime(long i){
 }
 
 void printAt(long num, int pos) {
-    int pp = pos;
+	lock(&m);
+    pp = pos;
     writeChar( (num % 100) / 10 + '0', pp);
     pp++;
     writeChar( num % 10 + '0', pp);
+	unlock(&m);
 }
 
 void computePrimes(int pos) {
@@ -109,9 +106,11 @@ void computePrimes(int pos) {
     }
 }
 
-
 int main() {
+	CLKPR = 0x80;
+	CLKPR = 0x00;
 	LCD_Init();
     spawn(computePrimes, 0);
     computePrimes(3);
+	//LCDDR2 = 0xffff;
 }
