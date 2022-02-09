@@ -1,3 +1,10 @@
+/*
+ * tinythreads.c
+ *
+ * 
+ *  Author: Elvira Forslund Widenroth & Jenny Sundström
+ */ 
+
 #include <setjmp.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>

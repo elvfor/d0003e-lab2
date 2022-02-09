@@ -1,3 +1,10 @@
+/*
+ * mytest.c
+ *
+ * 
+ *  Author: Elvira Forslund Widenroth & Jenny Sundström
+ */ 
+
 #include "tinythreads.h"
 #include <stdbool.h>
 #include <avr/io.h>
