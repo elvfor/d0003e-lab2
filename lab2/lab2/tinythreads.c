@@ -49,13 +49,13 @@ static void initialize(void) {
 		PCMSK1 = 128;		
 
 		//Clock init
-		/*TCCR1A = (1 << COM1A0) | (1 << COM1A1);						//CTC mode & OC1A is set high on compare match.
+		TCCR1A = (1 << COM1A0) | (1 << COM1A1);						//CTC mode & OC1A is set high on compare match.
 		TCCR1B =  (1 << WGM12) |(1 << CS10) |(1 << CS12);								// prescale Factor on 1024.
 		OCR1A = 391;													// Set Value to around 50ms. 8000000/20480 = 390.625
 	
 		TCNT1 = 0x0;				//clearing the TCNT1
 		TIMSK1 = (1 << OCIE1A);		//match interrupt Enable  comparission
-*/
+
 	
 		  initialized = 1;
 }
@@ -114,10 +114,10 @@ void spawn(void (* function)(int), int arg) {
 }
 
 void yield(void) {
-	ENABLE();
+	DISABLE();
 	enqueue(current, &readyQ);
 	dispatch(dequeue(&readyQ));
-	DISABLE();
+	ENABLE();
 }
 
 ISR(PCINT1_vect){
@@ -126,15 +126,14 @@ ISR(PCINT1_vect){
 	}
 }
 
-/*ISR(TIMER1_COMPA_vect) {
+ISR(TIMER1_COMPA_vect) {
 	yield();
-}*/
+}
 
 
 void lock(mutex *m) {
 	DISABLE();
 	if (m ->locked == 0) {
-
 		m->locked = 1;
 	} else {
 		enqueue(current, &(m->waitQ));

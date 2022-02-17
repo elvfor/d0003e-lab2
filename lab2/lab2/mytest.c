@@ -4,7 +4,7 @@
  * 
  *  Author: Elvira Forslund Widenroth & Jenny Sundström
  */ 
-
+//#include <avr/interrupt.h>
 #include "tinythreads.h"
 #include <stdbool.h>
 #include <avr/io.h>
@@ -86,20 +86,22 @@ int is_prime(long i){
 	while(n<i){
 		if ((i % n) == 0){
 			return 0;
-			}else{
+		}else{
 			n++;
 		}
-		return 1;
 	}
+	return 1;
 }
 
 void printAt(long num, int pos) {
 	lock(&m);
+	//cli();
     pp = pos;
     writeChar( (num % 100) / 10 + '0', pp);
     pp++;
     writeChar( num % 10 + '0', pp);
 	unlock(&m);
+	//sei();
 }
 
 void computePrimes(int pos) {
